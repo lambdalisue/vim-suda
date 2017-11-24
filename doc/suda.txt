@@ -97,7 +97,7 @@ suda#write({expr} [, {options}])
 	"cmdbang"	|v:cmdbang|| passed to |write| command
 	"range"		{range} passed to |write| command
 
-	A tempfile and ||write| command is used to dump the content of the
+	A tempfile and |write| command is used to dump the content of the
 	buffer internally.
 
 -----------------------------------------------------------------------------
