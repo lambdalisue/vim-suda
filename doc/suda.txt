@@ -119,7 +119,7 @@ QUESTIONS					*suda-questions*
 Q. How to use "sudo:" instead of "suda://" like "sudo.vim".
 A. Use |g:suda#prefix|| like below.
 >
-	let g:suda#prefix = 'suda:'
+	let g:suda#prefix = 'sudo:'
 	call suda#init('sudo:*,sudo:*/*')
 <
 Q. How to use SudoRead/SudoWrite command like "sudo.vim".
