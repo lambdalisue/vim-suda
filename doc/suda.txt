@@ -1,0 +1,131 @@
+*suda.txt*			Use sudo to read/write files in Vim/Neovim
+
+Version: 0.1.0
+Author:  Alisue <lambdalisue@hashnote.net>
+License: MIT license
+
+=============================================================================
+CONTENTS					*suda-contents*
+
+Introduction			|suda-introduction|
+Usage				|suda-usage|
+Interface			|suda-interface|
+  Functions			|suda-functions|
+  Variables			|suda-variables|
+Questions			||suda-questions|
+
+
+=============================================================================
+INTRODUCTION					*suda-introduction*
+
+*suda* is a plugin to read or write files with "sudo" command.
+
+This plugin was built while ":w !sudo tee % > /dev/null" trick does not work
+on Neovim.
+
+https://github.com/neovim/neovim/issues/1716
+
+This plugin is strongly inspired by sudo.vim but the interfaces was
+aggressively modified for modern Vim script.
+
+
+=============================================================================
+USAGE						*suda-usage*
+
+Add "suda://" prefix (see |g:suda#prefix|) to the filename and use Vim's
+builtin |read|, |edit|, |write|, |saveas| commands.
+
+For example
+>
+	" Open a current file with sudo
+	:e suda://%
+
+	" Save a current file with sudo
+	:w suda://%
+
+	" Edit /etc/sudoers
+	:e suda:///etc/sudoers
+
+	" Read /etc/sudoers (insert content under the cursor)
+	:r suda:///etc/sudoers
+
+	" Read /etc/sudoers at the end
+	:$r suda:///etc/sudoers
+
+	" Write contents to /etc/profile
+	:w suda:///etc/profile
+
+	" Save contents to /etc/profile
+	:saveas suda:///etc/profile
+<
+You can change the protocol prefix with |g:suda#prefix|.
+
+
+=============================================================================
+INTERFACE					*suda-interface*
+
+-----------------------------------------------------------------------------
+FUNCTIONS					*suda-functions*
+
+						*suda#init()*
+suda#init([{pat}])
+	Initialize suda. It registers required autocmds so that user can use
+	|read|, |edit|, |write|, and |saveas| commands.
+	The {pat} is used for |autocmd|.
+
+
+suda#system({cmd} [, {input}])
+	Like |system()| but execute {cmd} with "sudo".
+
+						*suda#read()*
+suda#read({expr} [, {options}])
+	Insert contents of {expr} below the cursor.
+	The following attributes are available on {options}
+
+	"cmdarg"	|v:cmdarg| passed to |read| command
+	"range"		{range} passed to |read| command
+
+	A tempfile and |read| command is used to dump the content of the
+	buffer internally.
+
+						*suda#write()*
+suda#write({expr} [, {options}])
+	Write contents of current buffer to {expr}.
+	The following attributes are available on {options}
+
+	"cmdarg"	|v:cmdarg| passed to |write| command
+	"cmdbang"	|v:cmdbang|| passed to |write| command
+	"range"		{range} passed to |write| command
+
+	A tempfile and ||write| command is used to dump the content of the
+	buffer internally.
+
+-----------------------------------------------------------------------------
+VARIABLES					*suda-variables*
+
+						*g:suda_startup*
+g:suda_startup
+	Call |suda#init()| automatically.
+
+						*g:suda#prefix*
+g:suda#prefix
+	Prefix string used as protocol.
+	Default: "suda://"
+
+
+=============================================================================
+QUESTIONS					*suda-questions*
+
+Q. How to use "sudo:" instead of "suda://" like "sudo.vim".
+A. Use |g:suda#prefix|| like below. Restarting Vim may be required.
+>
+	let g:suda#prefix = 'suda:'
+<
+Q. How to use SudoRead/SudoWrite command like "sudo.vim".
+A. Define the following scripts in your |vimrc|.
+>
+	command! -nargs=1 SudoRead  edit  sudo:<args>
+	command! -nargs=1 SudoWrite write sudo:<args>
+<
+=============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
