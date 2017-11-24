@@ -85,8 +85,8 @@ suda#read({expr} [, {options}])
 	"cmdarg"	|v:cmdarg| passed to |read| command
 	"range"		{range} passed to |read| command
 
-	A tempfile and |read| command is used to dump the content of the
-	buffer internally.
+	A tempfile and |read| command is used to load the content of the
+	{expr} internally.
 
 						*suda#write()*
 suda#write({expr} [, {options}])
