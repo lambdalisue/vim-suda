@@ -153,7 +153,9 @@ function! suda#BufWriteCmd() abort
     let echo_message = suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
-    if expand('%') ==# expand('<afile>')
+    let lhs = expand('%')
+    let rhs = expand('<afile>')
+    if lhs ==# rhs || rhs ==# g:suda#prefix . lhs
       setlocal nomodified
     endif
     redraw | echo echo_message
