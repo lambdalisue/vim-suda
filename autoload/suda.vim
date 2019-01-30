@@ -40,6 +40,16 @@ function! suda#read(expr, ...) abort range
         \ 'range': '',
         \}, a:0 ? a:1 : {}
         \)
+
+  if filereadable(path)
+    return substitute(execute(printf(
+          \ '%sread %s %s',
+          \ options.range,
+          \ options.cmdarg,
+          \ path,
+          \)), '^\r\?\n', '', '')
+  endif
+
   let tempfile = tempname()
   try
     let redirect = &shellredir =~# '%s'
