@@ -127,6 +127,8 @@ endfunction
 
 function! suda#BufReadCmd() abort
   call s:doautocmd('BufReadPre')
+  let ul = &undolevels
+  set undolevels=-1
   try
     let echo_message = suda#read('<afile>', {
           \ 'range': '1',
@@ -137,6 +139,7 @@ function! suda#BufReadCmd() abort
     filetype detect
     redraw | echo echo_message
   finally
+    let &undolevels = ul
     call s:doautocmd('BufReadPost')
   endtry
 endfunction
