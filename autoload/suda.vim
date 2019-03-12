@@ -2,7 +2,12 @@ function! suda#init(...) abort
   let prefixes = s:totable(a:0 ? a:1 : g:suda#prefix)
   let pat = ''
   for prefix in prefixes
-    let pat .= printf(',%s*', prefix)
+    if match(prefix, '\/') == -1
+      let prefix .= printf('*,%s*/*', prefix)
+    else
+      let prefix .= '*'
+    endif
+    let pat .= printf(',%s', prefix)
   endfor
   let pat = pat[1:]
   augroup suda_internal
