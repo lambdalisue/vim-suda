@@ -213,7 +213,7 @@ endfunction
 function! s:prefix_searchpattern() abort
   return printf(
         \ '^\%%(%s\)',
-        \ join(map(g:suda#prefix, { -> s:escape_patterns(v:val) }), '\|')
+        \ join(map(s:totable(g:suda#prefix), { -> s:escape_patterns(v:val) }), '\|')
         \)
 endfunction
 
