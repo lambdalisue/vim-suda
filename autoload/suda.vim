@@ -2,7 +2,7 @@ function! suda#init(...) abort
   let prefixes = s:totable(a:0 ? a:1 : g:suda#prefix)
   let pat = ''
   for prefix in prefixes
-    if match(prefix, '\/') == -1
+    if match(prefix, '\/') is# -1
       let prefix .= printf('*,%s*/*', prefix)
     else
       let prefix .= '*'
@@ -178,13 +178,8 @@ function! suda#BufWriteCmd() abort
           \})
     let lhs = expand('%')
     let rhs = expand('<afile>')
-    let pat = substitute(
-          \ s:escape_patterns(join(s:totable(g:suda#prefix), '|')),
-          \ '[\|]',
-          \ '\\|',
-          \ 'g'
-          \)
-    if lhs ==# rhs || substitute(rhs, '^' . pat, '', '') ==# lhs
+    let pat = s:prefix_searchpattern()
+    if lhs ==# rhs || substitute(rhs, pat, '', '') ==# lhs
       setlocal nomodified
     endif
     redraw | echo echo_message
@@ -204,26 +199,26 @@ function! suda#FileWriteCmd() abort
   endtry
 endfunction
 
-
 function! s:escape_patterns(expr) abort
   return escape(a:expr, '^$~.*[]\')
 endfunction
 
 function! s:expand_expression(expr) abort
-  let name = expand(a:expr)
-  let prefixes = s:totable(g:suda#prefix)
-  for prefix in prefixes
-    let prefix = s:escape_patterns(prefix)
-    if match(name, prefix) > -1
-      let name = substitute(name, '^' . prefix, '', '')
-      break
-    endif
-  endfor
-  return fnamemodify(name, ':p')
+  return fnamemodify(
+        \ substitute(expand(a:expr), s:prefix_searchpattern(), '', ''),
+        \ ':p'
+        \)
+endfunction
+
+function! s:prefix_searchpattern() abort
+  return printf(
+        \ '^\%%(%s\)',
+        \ join(map(g:suda#prefix, { -> s:escape_patterns(v:val) }), '\|')
+        \)
 endfunction
 
 function! s:totable(expr) abort
-  return type(a:expr) == 3 ? a:expr : [a:expr]
+  return type(a:expr) == v:t_list ? a:expr : [a:expr]
 endfunction
 
 function! s:doautocmd(name) abort
