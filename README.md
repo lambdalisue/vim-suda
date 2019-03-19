@@ -19,7 +19,7 @@ This plugin is strongly inspired by [sudo.vim][] but the interfaces was aggressi
 Usage
 -------------------------------------------------------------------------------
 
-Use `suda://` prefix in `read`, `edit`, `write`, or `saveas` commands like.
+Use `suda://` prefix in `read`, `edit`, `write`, or `saveas` commands.
 
 ```vim
 " Open a current file with sudo
@@ -45,3 +45,9 @@ Use `suda://` prefix in `read`, `edit`, `write`, or `saveas` commands like.
 ```
 
 You can change the protocol prefix with `g:suda#prefix`.
+
+```vim
+let g:suda#prefix = 'suda://'
+" multiple protocols can be defined too
+let g:suda#prefix = ['suda://', 'sudo://', '_://']
+```

@@ -35,7 +35,7 @@ USAGE						*suda-usage*
 Add "suda://" prefix (see |g:suda#prefix|) to the filename and use Vim's
 builtin |read|, |edit|, |write|, |saveas| commands.
 
-For example
+For example:
 >
 	" Open a current file with sudo
 	:e suda://%
@@ -109,20 +109,24 @@ g:suda_startup
 
 						*g:suda#prefix*
 g:suda#prefix
-	Prefix string used as protocol.
+	Prefix string(s) used as protocol. Can be a string or a list.
 	Default: "suda://"
 
 
 =============================================================================
 QUESTIONS					*suda-questions*
 
-Q. How to use "sudo:" instead of "suda://" like "sudo.vim".
+Q. How to use "sudo:" instead of "suda://" like "sudo.vim"?
 A. Use |g:suda#prefix|| like below.
 >
 	let g:suda#prefix = 'sudo:'
-	call suda#init('sudo:*,sudo:*/*')
 <
-Q. How to use SudoRead/SudoWrite command like "sudo.vim".
+Q. How to use "sudo:" alongside "suda://"?
+A. Use a list in |g:suda#prefix|| like below.
+>
+	let g:suda#prefix = ['suda://', 'sudo:']
+<
+Q. How to use SudoRead/SudoWrite command like "sudo.vim"?
 A. Write the following scripts in your |vimrc|.
 >
 	command! -nargs=1 SudoRead  edit  suda://<args>

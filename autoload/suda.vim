@@ -1,5 +1,15 @@
 function! suda#init(...) abort
-  let pat = a:0 ? a:1 : printf('%s*', g:suda#prefix)
+  let prefixes = s:totable(a:0 ? a:1 : g:suda#prefix)
+  let pat = ''
+  for prefix in prefixes
+    if match(prefix, '\/') is# -1
+      let prefix .= printf('*,%s*/*', prefix)
+    else
+      let prefix .= '*'
+    endif
+    let pat .= printf(',%s', prefix)
+  endfor
+  let pat = pat[1:]
   augroup suda_internal
     autocmd! *
     execute printf('autocmd BufReadCmd %s call suda#BufReadCmd()', pat)
@@ -168,7 +178,8 @@ function! suda#BufWriteCmd() abort
           \})
     let lhs = expand('%')
     let rhs = expand('<afile>')
-    if lhs ==# rhs || rhs ==# g:suda#prefix . lhs
+    let pat = s:prefix_searchpattern()
+    if lhs ==# rhs || substitute(rhs, pat, '', '') ==# lhs
       setlocal nomodified
     endif
     redraw | echo echo_message
@@ -188,14 +199,26 @@ function! suda#FileWriteCmd() abort
   endtry
 endfunction
 
-
 function! s:escape_patterns(expr) abort
   return escape(a:expr, '^$~.*[]\')
 endfunction
 
 function! s:expand_expression(expr) abort
-  let prefix = s:escape_patterns(g:suda#prefix)
-  return fnamemodify(substitute(expand(a:expr), '^' . prefix, '', ''), ':p')
+  return fnamemodify(
+        \ substitute(expand(a:expr), s:prefix_searchpattern(), '', ''),
+        \ ':p'
+        \)
+endfunction
+
+function! s:prefix_searchpattern() abort
+  return printf(
+        \ '^\%%(%s\)',
+        \ join(map(s:totable(g:suda#prefix), { -> s:escape_patterns(v:val) }), '\|')
+        \)
+endfunction
+
+function! s:totable(expr) abort
+  return type(a:expr) == v:t_list ? a:expr : [a:expr]
 endfunction
 
 function! s:doautocmd(name) abort
