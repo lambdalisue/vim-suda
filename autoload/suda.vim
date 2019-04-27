@@ -93,6 +93,31 @@ function! suda#read(expr, ...) abort range
   endtry
 endfunction
 
+function! suda#write_wrapper(action)
+  try 
+    execute('w' . a:action)
+  catch /^Vim\%((\a\+)\)\=:E45/
+    execute('w' . a:action . ' suda://%')
+  endtry
+endfunction
+
+function suda#smart_read()
+  let l:fpath = expand('%')
+  if exists('g:suda#prefix')
+    let l:pat = '^' . g:suda#prefix
+  else
+    let l:pat = '^suda://*'
+  endif
+  if !match(l:fpath, l:pat)
+    return
+  endif
+  if !filereadable(l:fpath)
+    let l:tobedeleted = bufnr('%')
+    execute 'edit suda://%'
+    exe "bd! " . l:tobedeleted
+  endif
+endfunction
+
 function! suda#write(expr, ...) abort range
   let path = s:expand_expression(a:expr)
   let options = extend({
