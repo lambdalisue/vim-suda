@@ -102,16 +102,28 @@ function! suda#write_wrapper(write_cmd) abort
 endfunction
 
 function suda#smart_read() abort
+  if get(b:, 'suda_already_read', 0)
+    let b:suda_already_read=0
+    return
+  endif
   let fpath = expand('%')
   let pat = '^' . get(g:, 'suda#prefix', 'suda://*')
   if !match(fpath, pat)
+    return
+  endif
+  if isdirectory(fpath)
     return
   endif
   if !filereadable(fpath)
     let tobedeleted = bufnr('%')
     execute 'edit suda://%'
     exe "bdelete! " . tobedeleted
+    return
   endif
+  execute('read ' . fpath)
+  1substitute/^\r\?\n//
+  let b:suda_already_read=1
+  call s:doautocmd('BufReadPost')
 endfunction
 
 function! suda#write(expr, ...) abort range
