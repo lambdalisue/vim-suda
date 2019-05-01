@@ -113,6 +113,9 @@ function! suda#smart_read(bufn, fpath) abort
     return
   endif
   if !filereadable(a:fpath)
+    if filewritable(fnamemodify(a:fpath, ':p:h')) ==# 2
+      return
+    endif
     execute 'edit suda://%'
     execute "bdelete! " . a:bufn
   endif
