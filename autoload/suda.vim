@@ -93,11 +93,11 @@ function! suda#read(expr, ...) abort range
   endtry
 endfunction
 
-function! suda#write_wrapper(action) abort
+function! suda#write_wrapper(write_cmd) abort
   try 
-    execute('w' . a:action)
+    execute(a:write_cmd)
   catch /^Vim\%((\a\+)\)\=:E45/
-    execute('w' . a:action . ' suda://%')
+    execute(a:write_cmd . ' suda://%')
   endtry
 endfunction
 

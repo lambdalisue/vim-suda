@@ -9,13 +9,9 @@ endif
 
 if exists('g:suda_hijack_write')
   cabbrev w W
-  cabbrev wa Wa
   cabbrev wq Wq
-  cabbrev wqa Wqa
-  command! W execute suda#write_wrapper('')
-  command! Wa execute suda#write_wrapper('a')
-  command! Wq execute suda#write_wrapper('q')
-  command! Waq execute suda#write_wrapper('aq')
+  command! W execute suda#write_wrapper('w')
+  command! Wq execute suda#write_wrapper('wq')
 endif
 
 if exists('g:suda_smart_read')
