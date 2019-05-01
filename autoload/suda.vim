@@ -93,7 +93,7 @@ function! suda#read(expr, ...) abort range
   endtry
 endfunction
 
-function! suda#write_wrapper(action)
+function! suda#write_wrapper(action) abort
   try 
     execute('w' . a:action)
   catch /^Vim\%((\a\+)\)\=:E45/
@@ -101,7 +101,7 @@ function! suda#write_wrapper(action)
   endtry
 endfunction
 
-function suda#smart_read()
+function suda#smart_read() abort
   let l:fpath = expand('%')
   if exists('g:suda#prefix')
     let l:pat = '^' . g:suda#prefix
