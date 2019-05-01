@@ -17,6 +17,6 @@ endif
 if exists('g:suda_smart_read')
   augroup suda_smart_read
     autocmd!
-    autocmd BufEnter * nested call suda#smart_read()
+    autocmd BufEnter * nested call suda#smart_read(expand('<abuf>'), expand('<afile>'))
   augroup end
 endif

@@ -101,19 +101,20 @@ function! suda#write_wrapper(write_cmd) abort
   endtry
 endfunction
 
-function suda#smart_read() abort
-  let fpath = expand('%')
+let s:smart_read_checked = {}
+
+function! suda#smart_read(bufn, fpath) abort
+  if get(s:smart_read_checked, a:bufn, 0)
+    let s:smart_read_checked[a:bufn] = 1
+    return
+  end
   let pat = '^' . get(g:, 'suda#prefix', 'suda://*')
-  if !match(fpath, pat)
+  if !match(a:fpath, pat) || &buftype != '' || a:fpath ==# ''
     return
   endif
-  if isdirectory(fpath)
-    return
-  endif
-  if !filereadable(fpath)
-    let tobedeleted = bufnr('%')
+  if !filereadable(a:fpath)
     execute 'edit suda://%'
-    exe "bdelete! " . tobedeleted
+    execute "bdelete! " . a:bufn
   endif
 endfunction
 
