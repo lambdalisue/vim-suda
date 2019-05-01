@@ -20,7 +20,7 @@ endif
 
 if exists('g:suda_smart_read')
   augroup suda_smart_read
-    au!
-    au BufReadCmd * nested call suda#smart_read()
+    autocmd!
+    autocmd BufReadCmd * nested call suda#smart_read()
   augroup end
 endif

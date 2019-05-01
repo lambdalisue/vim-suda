@@ -103,18 +103,14 @@ endfunction
 
 function suda#smart_read() abort
   let l:fpath = expand('%')
-  if exists('g:suda#prefix')
-    let l:pat = '^' . g:suda#prefix
-  else
-    let l:pat = '^suda://*'
-  endif
+  let l:pat = '^' . get(g:, 'suda#prefix', 'suda://*')
   if !match(l:fpath, l:pat)
     return
   endif
   if !filereadable(l:fpath)
     let l:tobedeleted = bufnr('%')
     execute 'edit suda://%'
-    exe "bd! " . l:tobedeleted
+    exe "bdelete! " . l:tobedeleted
   endif
 endfunction
 
