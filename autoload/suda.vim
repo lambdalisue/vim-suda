@@ -102,15 +102,15 @@ function! suda#write_wrapper(action) abort
 endfunction
 
 function suda#smart_read() abort
-  let l:fpath = expand('%')
-  let l:pat = '^' . get(g:, 'suda#prefix', 'suda://*')
-  if !match(l:fpath, l:pat)
+  let fpath = expand('%')
+  let pat = '^' . get(g:, 'suda#prefix', 'suda://*')
+  if !match(fpath, pat)
     return
   endif
-  if !filereadable(l:fpath)
-    let l:tobedeleted = bufnr('%')
+  if !filereadable(fpath)
+    let tobedeleted = bufnr('%')
     execute 'edit suda://%'
-    exe "bdelete! " . l:tobedeleted
+    exe "bdelete! " . tobedeleted
   endif
 endfunction
 
