@@ -108,8 +108,7 @@ function! suda#smart_read(bufn, fpath) abort
     let s:smart_read_checked[a:bufn] = 1
     return
   end
-  let pat = '^' . get(g:, 'suda#prefix', 'suda://*')
-  if !match(a:fpath, pat) || &buftype != '' || a:fpath ==# ''
+  if !match(a:fpath, '^[a-z]\+://*') || &buftype != '' || a:fpath ==# ''
     return
   endif
   if !filereadable(a:fpath)
