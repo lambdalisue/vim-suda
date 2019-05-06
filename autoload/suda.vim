@@ -96,7 +96,7 @@ endfunction
 function! suda#write_wrapper(write_cmd) abort
   try 
     execute(a:write_cmd)
-  catch /^Vim\%((\a\+)\)\=:E45/
+  catch /^Vim\%((\a\+)\)\=:E45:/
     execute(a:write_cmd . ' suda://%')
   endtry
 endfunction
