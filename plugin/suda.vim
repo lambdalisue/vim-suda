@@ -10,8 +10,8 @@ endif
 if exists('g:suda_hijack_write')
   cabbrev w W
   cabbrev wq Wq
-  command! W execute suda#write_wrapper('w')
-  command! Wq execute suda#write_wrapper('wq')
+  command! W call suda#write_wrapper('w')
+  command! Wq call suda#write_wrapper('wq')
 endif
 
 if exists('g:suda_smart_read')
