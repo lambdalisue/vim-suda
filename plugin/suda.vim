@@ -8,10 +8,10 @@ if get(g:, 'suda_startup', 1)
 endif
 
 if get(g:, 'suda_hijack_write')
-  cabbrev w W
-  cabbrev wq Wq
-  command! W call suda#write_wrapper('w')
-  command! Wq call suda#write_wrapper('wq')
+  cabbrev w SudaW
+  cabbrev wq SudaWq
+  command! SudaW call suda#write_wrapper('w')
+  command! SudaWq call suda#write_wrapper('wq')
 endif
 
 if get(g:, 'suda_smart_read')
