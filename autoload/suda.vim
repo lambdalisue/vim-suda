@@ -94,30 +94,11 @@ function! suda#read(expr, ...) abort range
 endfunction
 
 function! suda#write_wrapper(write_cmd) abort
-  try 
+  try
     execute(a:write_cmd)
   catch /^Vim\%((\a\+)\)\=:E45:/
     execute(a:write_cmd . ' suda://%')
   endtry
-endfunction
-
-let s:smart_read_checked = {}
-
-function! suda#smart_read(bufn, fpath) abort
-  if get(s:smart_read_checked, a:bufn, 0)
-    let s:smart_read_checked[a:bufn] = 1
-    return
-  end
-  if !match(a:fpath, '^[a-z]\+://*') || &buftype != '' || a:fpath ==# ''
-    return
-  endif
-  if !filereadable(a:fpath)
-    if filewritable(fnamemodify(a:fpath, ':p:h')) ==# 2
-      return
-    endif
-    execute 'edit suda://%'
-    execute "bdelete! " . a:bufn
-  endif
 endfunction
 
 function! suda#write(expr, ...) abort range
@@ -160,7 +141,6 @@ function! suda#write(expr, ...) abort range
     silent call delete(tempfile)
   endtry
 endfunction
-
 
 function! suda#BufReadCmd() abort
   call s:doautocmd('BufReadPre')
@@ -224,6 +204,25 @@ function! suda#FileWriteCmd() abort
   finally
     call s:doautocmd('FileWritePost')
   endtry
+endfunction
+
+function! suda#BufEnter() abort
+  augroup suda_smart_read_local
+    autocmd! * <buffer=abuf>
+  augroup END
+  let bufname = expand('<afile>')
+  if !empty(&buftype) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
+    " Non file buffer
+    return
+  elseif filereadable(bufname)
+    " File is readable
+    return
+  elseif empty(getftype(bufname)) && filewritable(fnamemodify(bufname, ':p:h')) is# 2
+    " File does not exist and the directory is writable
+    return
+  endif
+  execute printf('keepalt keepjumps file %s%%', g:suda#prefix)
+  edit
 endfunction
 
 function! s:escape_patterns(expr) abort
