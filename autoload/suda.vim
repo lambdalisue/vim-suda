@@ -207,10 +207,8 @@ function! suda#FileWriteCmd() abort
 endfunction
 
 function! suda#BufEnter() abort
-  augroup suda_smart_read_local
-    autocmd! * <buffer=abuf>
-  augroup END
   let bufname = expand('<afile>')
+  let bufnr = bufnr('%')
   if !empty(&buftype) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
     " Non file buffer
     return
@@ -221,8 +219,12 @@ function! suda#BufEnter() abort
     " File does not exist and the directory is writable
     return
   endif
-  execute printf('keepalt keepjumps file %s%%', g:suda#prefix)
-  edit
+  execute printf(
+        \ 'keepalt keepjumps edit %s%s',
+        \ g:suda#prefix,
+        \ fnamemodify(bufname, ':p'),
+        \)
+  execute printf('silent! %dbwipeout', bufnr)
 endfunction
 
 function! s:escape_patterns(expr) abort
