@@ -93,14 +93,6 @@ function! suda#read(expr, ...) abort range
   endtry
 endfunction
 
-function! suda#write_wrapper(write_cmd) abort
-  try
-    execute(a:write_cmd)
-  catch /^Vim\%((\a\+)\)\=:E45:/
-    execute(a:write_cmd . ' suda://%')
-  endtry
-endfunction
-
 function! suda#write(expr, ...) abort range
   let path = s:expand_expression(a:expr)
   let options = extend({
@@ -212,8 +204,8 @@ function! suda#BufEnter() abort
   if !empty(&buftype) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
     " Non file buffer
     return
-  elseif filereadable(bufname)
-    " File is readable
+  elseif filereadable(bufname) && filewritable(bufname)
+    " File is readable and writeable
     return
   elseif empty(getftype(bufname))
     " if file doesn't exist, we search for a all directories up it's path to

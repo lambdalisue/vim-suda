@@ -7,13 +7,6 @@ if get(g:, 'suda_startup', 1)
   call suda#init()
 endif
 
-if get(g:, 'suda_hijack_write')
-  cabbrev w SudaW
-  cabbrev wq SudaWq
-  command! SudaW call suda#write_wrapper('w')
-  command! SudaWq call suda#write_wrapper('wq')
-endif
-
 if get(g:, 'suda_smart_read')
   augroup suda_smart_read_primary
     autocmd!
