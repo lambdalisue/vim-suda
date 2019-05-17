@@ -210,8 +210,9 @@ function! suda#BufEnter() abort
   elseif empty(getftype(bufname))
     " if file doesn't exist, we search for a all directories up it's path to
     " see if each one of them is writable, if not, we `return`
-    let parent = fnamemodify(bufname, ':p:h')
-    while 1
+    let parent = fnamemodify(bufname, ':p')
+    while parent !=# fnamemodify(parent, ':h')  " stop loop on root
+      let parent = fnamemodify(parent, ':h')
       if filewritable(parent) is# 2
         " reached a writeable directory - no need to switch to suda://
         return
@@ -221,8 +222,6 @@ function! suda#BufEnter() abort
         " suda:// .
         break
       endif
-      " we keep on the iteration by going up the tree
-      let parent = fnamemodify(parent, ':h')
     endwhile
   endif
   execute printf(
