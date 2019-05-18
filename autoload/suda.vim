@@ -203,8 +203,11 @@ function! suda#BufEnter() abort
   let bufname = expand('<afile>')
   let bufnr = bufnr('%')
   if get(s:smart_read_checked, bufnr, 0)
-    let s:smart_read_checked[bufnr] = 1
+    " returning because bufnr was found in cache dict
     return
+  else
+    " updating cache dict
+    let s:smart_read_checked[bufnr] = 1
   end
   if !empty(&buftype) || isdirectory(bufname) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
     " Non file buffer
