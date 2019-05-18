@@ -206,7 +206,7 @@ function! suda#BufEnter() abort
     let s:smart_read_checked[bufnr] = 1
     return
   end
-  if !empty(&buftype) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
+  if !empty(&buftype) || isdirectory(bufname) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
     " Non file buffer
     return
   elseif filereadable(bufname) && filewritable(bufname)
