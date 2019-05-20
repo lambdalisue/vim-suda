@@ -8,7 +8,7 @@ if get(g:, 'suda_startup', 1)
 endif
 
 if get(g:, 'suda_smart_read')
-  augroup suda_smart_read
+  augroup suda_smart_edit
     autocmd!
     autocmd BufEnter * nested call suda#BufEnter()
   augroup end
