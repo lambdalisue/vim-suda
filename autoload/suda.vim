@@ -198,18 +198,16 @@ function! suda#FileWriteCmd() abort
   endtry
 endfunction
 
-let s:smart_read_checked = {}
 function! suda#BufEnter() abort
-  let bufname = expand('<afile>')
-  let bufnr = bufnr('%')
-  if get(s:smart_read_checked, bufnr, 0)
-    " returning because bufnr was found in cache dict
+  if exists('b:suda_smart_edit_checked')
     return
-  else
-    " updating cache dict
-    let s:smart_read_checked[bufnr] = 1
-  end
-  if !empty(&buftype) || isdirectory(bufname) || empty(bufname) || match(bufname, '^[a-z]\+://*') isnot# -1
+  endif
+  let b:suda_smart_edit_checked = 1
+  let bufname = expand('<afile>')
+  if !empty(&buftype)
+        \ || empty(bufname)
+        \ || match(bufname, '^[a-z]\+://*') isnot# -1
+        \ || isdirectory(bufname)
     " Non file buffer
     return
   elseif filereadable(bufname) && filewritable(bufname)
@@ -219,19 +217,16 @@ function! suda#BufEnter() abort
     " if file doesn't exist, we search for a all directories up it's path to
     " see if each one of them is writable, if not, we `return`
     let parent = fnamemodify(bufname, ':p')
-    while parent !=# fnamemodify(parent, ':h')  " stop loop on root
+    while parent !=# fnamemodify(parent, ':h')
       let parent = fnamemodify(parent, ':h')
       if filewritable(parent) is# 2
-        " reached a writeable directory - no need to switch to suda://
         return
       elseif !filereadable(parent) && isdirectory(parent)
-        " reached a readable parent directory which is not writeable so it
-        " means we finally can be sure we need to replace our buffer with a
-        " suda:// .
         break
       endif
     endwhile
   endif
+  let bufnr = str2nr(expand('<abuf>'))
   execute printf(
         \ 'keepalt keepjumps edit %s%s',
         \ g:suda#prefix,
