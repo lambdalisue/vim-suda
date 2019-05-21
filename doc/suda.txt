@@ -105,8 +105,8 @@ VARIABLES					*suda-variables*
 
 						*g:suda_startup*
 g:suda_startup
-	If set, call |suda#init()| automatically on buffers suda buffers,
-	according to prefix.
+	If set, call |suda#init()| automatically on suda's buffers, according
+	to the prefix.
 	Default: 1
 
 						*g:suda#prefix*
@@ -120,7 +120,7 @@ g:suda_smart_edit
 	every buffer and decides whether to replace it with a suda buffer i.e
 	`suda://%` - depending on your |g:suda#prefix|, naturally. The check
 	is done only once for every buffer and it is designed to be optimized
-	as possible to you shouldn't feel any slowdown when openning buffers.
+	as possible so you shouldn't feel any slowdown when openning buffers.
 	Default: 0
 
 =============================================================================
