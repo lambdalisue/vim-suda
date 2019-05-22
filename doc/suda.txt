@@ -105,13 +105,23 @@ VARIABLES					*suda-variables*
 
 						*g:suda_startup*
 g:suda_startup
-	Call |suda#init()| automatically.
+	If set, call |suda#init()| automatically on suda's buffers, according
+	to the prefix.
+	Default: 1
 
 						*g:suda#prefix*
 g:suda#prefix
 	Prefix string(s) used as protocol. Can be a string or a list.
 	Default: "suda://"
 
+						*g:suda_smart_edit*
+g:suda_smart_edit
+	If set, an |autocmd| is created that performs a heuristic check on
+	every buffer and decides whether to replace it with a suda buffer i.e
+	`suda://%` - depending on your |g:suda#prefix|, naturally. The check
+	is done only once for every buffer and it is designed to be optimized
+	as possible so you shouldn't feel any slowdown when openning buffers.
+	Default: 0
 
 =============================================================================
 QUESTIONS					*suda-questions*

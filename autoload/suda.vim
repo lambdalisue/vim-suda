@@ -134,7 +134,6 @@ function! suda#write(expr, ...) abort range
   endtry
 endfunction
 
-
 function! suda#BufReadCmd() abort
   call s:doautocmd('BufReadPre')
   let ul = &undolevels
@@ -197,6 +196,43 @@ function! suda#FileWriteCmd() abort
   finally
     call s:doautocmd('FileWritePost')
   endtry
+endfunction
+
+function! suda#BufEnter() abort
+  if exists('b:suda_smart_edit_checked')
+    return
+  endif
+  let b:suda_smart_edit_checked = 1
+  let bufname = expand('<afile>')
+  if !empty(&buftype)
+        \ || empty(bufname)
+        \ || match(bufname, '^[a-z]\+://*') isnot# -1
+        \ || isdirectory(bufname)
+    " Non file buffer
+    return
+  elseif filereadable(bufname) && filewritable(bufname)
+    " File is readable and writeable
+    return
+  elseif empty(getftype(bufname))
+    " if file doesn't exist, we search for a all directories up it's path to
+    " see if each one of them is writable, if not, we `return`
+    let parent = fnamemodify(bufname, ':p')
+    while parent !=# fnamemodify(parent, ':h')
+      let parent = fnamemodify(parent, ':h')
+      if filewritable(parent) is# 2
+        return
+      elseif !filereadable(parent) && isdirectory(parent)
+        break
+      endif
+    endwhile
+  endif
+  let bufnr = str2nr(expand('<abuf>'))
+  execute printf(
+        \ 'keepalt keepjumps edit %s%s',
+        \ g:suda#prefix,
+        \ fnamemodify(bufname, ':p'),
+        \)
+  execute printf('silent! %dbwipeout', bufnr)
 endfunction
 
 function! s:escape_patterns(expr) abort
