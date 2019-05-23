@@ -28,6 +28,14 @@ https://github.com/neovim/neovim/issues/1716
 This plugin is strongly inspired by sudo.vim but the interfaces was
 aggressively modified for modern Vim script.
 
+For Windows users, install mattn/sudo command to enable this plugin.
+
+https://github.com/mattn/sudo
+
+Make sure that the following shows 1.
+>
+	: echo executable('sudo')
+<
 
 =============================================================================
 USAGE						*suda-usage*
