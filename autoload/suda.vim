@@ -227,9 +227,10 @@ function! suda#BufEnter() abort
     endwhile
   endif
   let bufnr = str2nr(expand('<abuf>'))
+  let prefix = get(s:totable(g:suda#prefix), 0, 'suda://')
   execute printf(
         \ 'keepalt keepjumps edit %s%s',
-        \ g:suda#prefix,
+        \ prefix,
         \ fnamemodify(bufname, ':p'),
         \)
   execute printf('silent! %dbwipeout', bufnr)
