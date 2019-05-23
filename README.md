@@ -51,3 +51,21 @@ let g:suda#prefix = 'suda://'
 " multiple protocols can be defined too
 let g:suda#prefix = ['suda://', 'sudo://', '_://']
 ```
+
+### Smart edit
+
+When `let g:suda_smart_edit = 1` is written in your vimrc, suda automatically switch a buffer name when the target file is not readable or writable.
+
+In short,
+
+```
+$ vim /etc/hosts
+```
+
+or
+
+```
+:e /etc/shadow
+```
+
+Will open `suda:///etc/hosts` or `suda:///etc/shadow` instead of `/etc/hosts` or `/etc/shadow` because that files are not writable or not readable.
