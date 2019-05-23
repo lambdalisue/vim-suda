@@ -69,3 +69,13 @@ or
 ```
 
 Will open `suda:///etc/hosts` or `suda:///etc/shadow` instead of `/etc/hosts` or `/etc/shadow` because that files are not writable or not readable.
+
+
+### Windows
+
+Install [mattn/sudo](https://github.com/mattn/sudo) to enable this plugin in Windows.
+Make sure that the following shows `1`.
+
+```vim
+: echo executable('sudo')
+```

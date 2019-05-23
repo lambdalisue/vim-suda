@@ -25,7 +25,9 @@ function! suda#init(...) abort
 endfunction
 
 function! suda#system(cmd, ...) abort
-  let cmd = printf('sudo -p '''' -n %s', a:cmd)
+  let cmd = has('win32')
+        \ ? printf('sudo %s', a:cmd)
+        \ : printf('sudo -p '''' -n %s', a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
