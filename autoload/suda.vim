@@ -123,7 +123,7 @@ function! suda#write(expr, ...) abort range
       let tee_cmd = exepath(tee_cmd)
     endif
     let result = suda#system(
-          \ printf('%s %s', tee_cmd, shellescape(path)),
+          \ printf('%s %s', shellescape(tee_cmd), shellescape(path)),
           \ join(readfile(tempfile, 'b'), "\n")
           \)
     if v:shell_error
