@@ -124,7 +124,7 @@ g:suda#prefix
 
 						*g:suda#prompt*
 g:suda#prompt
-	Prompt string(s) used to ask password.
+	A prompt string used to ask password.
 	Default: "Password: "
 
 						*g:suda_smart_edit*
