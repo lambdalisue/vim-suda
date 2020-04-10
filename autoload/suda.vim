@@ -37,7 +37,7 @@ function! suda#system(cmd, ...) abort
   endif
   try
     call inputsave()
-    redraw | let password = inputsecret('Password: ')
+    redraw | let password = inputsecret(g:suda#prompt)
   finally
     call inputrestore()
   endtry
@@ -281,3 +281,4 @@ endfunction
 
 " Configure
 let g:suda#prefix = get(g:, 'suda#prefix', 'suda://')
+let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')

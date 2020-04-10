@@ -1,9 +1,9 @@
-suda.vim
-===============================================================================
+# suda.vim
+
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Doc](https://img.shields.io/badge/doc-%3Ah%20suda-orange.svg?style=flat-square)](doc/suda.txt)
 
-*suda* is a plugin to read or write files with `sudo` command.
+_suda_ is a plugin to read or write files with `sudo` command.
 
 This plugin was built while `:w !sudo tee % > /dev/null` trick does not work on [neovim][].
 
@@ -14,10 +14,7 @@ This plugin is strongly inspired by [sudo.vim][] but the interfaces was aggressi
 [sudo.vim]: https://github.com/vim-scripts/sudo.vim
 [neovim]: https://github.com/neovim/neovim
 
-
-
-Usage
--------------------------------------------------------------------------------
+## Usage
 
 Use `suda://` prefix in `read`, `edit`, `write`, or `saveas` commands.
 
@@ -52,6 +49,13 @@ let g:suda#prefix = 'suda://'
 let g:suda#prefix = ['suda://', 'sudo://', '_://']
 ```
 
+And you can change the prompt string with `g:suda#prompt`.
+
+```vim
+" 'Password' in french
+let g:suda#prompt = 'Mot de passe: '
+```
+
 ### Smart edit
 
 When `let g:suda_smart_edit = 1` is written in your vimrc, suda automatically switch a buffer name when the target file is not readable or writable.
@@ -69,7 +73,6 @@ or
 ```
 
 Will open `suda:///etc/hosts` or `suda:///etc/shadow` instead of `/etc/hosts` or `/etc/shadow` because that files are not writable or not readable.
-
 
 ### Windows
 

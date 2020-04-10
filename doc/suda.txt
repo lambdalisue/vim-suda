@@ -122,6 +122,11 @@ g:suda#prefix
 	Prefix string(s) used as protocol. Can be a string or a list.
 	Default: "suda://"
 
+						*g:suda#prompt*
+g:suda#prompt
+	A prompt string used to ask password.
+	Default: "Password: "
+
 						*g:suda_smart_edit*
 g:suda_smart_edit
 	If set, an |autocmd| is created that performs a heuristic check on
