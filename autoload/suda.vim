@@ -139,6 +139,10 @@ function! suda#write(expr, ...) abort range
     if path_exists
       let echo_message = substitute(echo_message, '\[New\] ', '', 'g')
     endif
+
+    " Persist the undo.
+    call s:write_undo()
+
     return substitute(echo_message, '^\r\?\n', '', '')
   finally
     silent call delete(tempfile)
@@ -264,6 +268,26 @@ function! s:prefix_searchpattern() abort
         \ '^\%%(%s\)',
         \ join(map(s:totable(g:suda#prefix), { -> s:escape_patterns(v:val) }), '\|')
         \)
+endfunction
+
+function! s:write_undo() abort
+  if !&undofile
+    return
+  endif
+
+  if has('win32')
+    " TODO
+    " I don't have Windows environment. But I know that path separators in
+    " Windows are both ':' and '\' for undo file.
+  else
+    let p = resolve(expand('%'))
+    if &undodir == '.'
+      let undo_path = printf('%s/.%s.un~', fnamemodify(p, ':p:h'), expand('%:t'))
+    else
+      let undo_path = printf('%s/%s', &undodir, fnamemodify(p, ':p:gs?/?\\%?'))
+    endif
+    execute printf('wundo! %s', undo_path)
+  endif
 endfunction
 
 function! s:totable(expr) abort
