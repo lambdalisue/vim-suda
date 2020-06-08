@@ -141,7 +141,7 @@ function! suda#write(expr, ...) abort range
     endif
 
     " Persist the undo.
-    call s:write_undo()
+    call s:write_undo(path)
 
     return substitute(echo_message, '^\r\?\n', '', '')
   finally
@@ -270,7 +270,7 @@ function! s:prefix_searchpattern() abort
         \)
 endfunction
 
-function! s:write_undo() abort
+function! s:write_undo(path) abort
   if !&undofile
     return
   endif
@@ -280,9 +280,10 @@ function! s:write_undo() abort
     " I don't have Windows environment. But I know that path separators in
     " Windows are both ':' and '\' for undo file.
   else
-    let p = resolve(expand('%'))
+    let p = resolve(a:path)
     if &undodir == '.'
-      let undo_path = printf('%s/.%s.un~', fnamemodify(p, ':p:h'), expand('%:t'))
+      let undo_path = printf('%s/.%s.un~', fnamemodify(p, ':p:h'),
+                  \ fnamemodify(p, ':t'))
     else
       let undo_path = printf('%s/%s', &undodir, fnamemodify(p, ':p:gs?/?\\%?'))
     endif
