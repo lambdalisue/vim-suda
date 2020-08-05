@@ -283,11 +283,11 @@ function! s:write_undo(path) abort
     let p = resolve(a:path)
     if &undodir == '.'
       let undo_path = printf('%s/.%s.un~', fnamemodify(p, ':p:h'),
-                  \ fnamemodify(p, ':t'))
+         \ fnamemodify(p, ':t'))
     else
-      let undo_path = printf('%s/%s', &undodir, fnamemodify(p, ':p:gs?/?\\%?'))
+      let undo_path = printf('%s/%s', &undodir, fnamemodify(p, ':p:gs?/?%?'))
     endif
-    execute printf('wundo! %s', undo_path)
+    silent! execute printf('wundo! %s', fnameescape(undo_path))
   endif
 endfunction
 
