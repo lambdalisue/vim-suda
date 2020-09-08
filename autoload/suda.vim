@@ -1,29 +1,3 @@
-function! suda#init(...) abort
-  let prefixes = s:totable(a:0 ? a:1 : g:suda#prefix)
-  let pat = ''
-  for prefix in prefixes
-    if match(prefix, '\/') is# -1
-      let prefix .= printf('*,%s*/*', prefix)
-    else
-      let prefix .= '*'
-    endif
-    let pat .= printf(',%s', prefix)
-  endfor
-  let pat = pat[1:]
-  augroup suda_internal
-    autocmd! *
-    execute printf('autocmd BufReadCmd %s call suda#BufReadCmd()', pat)
-    execute printf('autocmd FileReadCmd %s call suda#FileReadCmd()', pat)
-    execute printf('autocmd BufWriteCmd %s call suda#BufWriteCmd()', pat)
-    execute printf('autocmd FileWriteCmd %s call suda#FileWriteCmd()', pat)
-    " Pseudo autocmd to suppress 'No such autocmd' message
-    execute printf('autocmd BufReadPre,BufReadPost %s :', pat)
-    execute printf('autocmd FileReadPre,FileReadPost %s :', pat)
-    execute printf('autocmd BufWritePre,BufWritePost %s :', pat)
-    execute printf('autocmd FileWritePre,FileWritePost %s :', pat)
-  augroup END
-endfunction
-
 function! suda#system(cmd, ...) abort
   let cmd = has('win32')
         \ ? printf('sudo %s', a:cmd)
@@ -46,7 +20,8 @@ function! suda#system(cmd, ...) abort
 endfunction
 
 function! suda#read(expr, ...) abort range
-  let path = s:expand_expression(a:expr)
+  let path = s:strip_prefix(expand(a:expr))
+  let path = fnamemodify(path, ':p')
   let options = extend({
         \ 'cmdarg': v:cmdarg,
         \ 'range': '',
@@ -96,7 +71,8 @@ function! suda#read(expr, ...) abort range
 endfunction
 
 function! suda#write(expr, ...) abort range
-  let path = s:expand_expression(a:expr)
+  let path = s:strip_prefix(expand(a:expr))
+  let path = fnamemodify(path, ':p')
   let options = extend({
         \ 'cmdarg': v:cmdarg,
         \ 'cmdbang': v:cmdbang,
@@ -146,7 +122,7 @@ function! suda#write(expr, ...) abort range
 endfunction
 
 function! suda#BufReadCmd() abort
-  call s:doautocmd('BufReadPre')
+  doautocmd <nomodeline> BufReadPre
   let ul = &undolevels
   set undolevels=-1
   try
@@ -161,12 +137,12 @@ function! suda#BufReadCmd() abort
     redraw | echo echo_message
   finally
     let &undolevels = ul
-    call s:doautocmd('BufReadPost')
+    doautocmd <nomodeline> BufReadPost
   endtry
 endfunction
 
 function! suda#FileReadCmd() abort
-  call s:doautocmd('FileReadPre')
+  doautocmd <nomodeline> FileReadPre
   try
     " XXX
     " A '[ mark indicates the {range} of the command.
@@ -177,36 +153,35 @@ function! suda#FileReadCmd() abort
           \ 'range': range,
           \})
   finally
-    call s:doautocmd('FileReadPost')
+    doautocmd <nomodeline> FileReadPost
   endtry
 endfunction
 
 function! suda#BufWriteCmd() abort
-  call s:doautocmd('BufWritePre')
+  doautocmd <nomodeline> BufWritePre
   try
     let echo_message = suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
     let lhs = expand('%')
     let rhs = expand('<afile>')
-    let pat = s:prefix_searchpattern()
-    if lhs ==# rhs || substitute(rhs, pat, '', '') ==# lhs
+    if lhs ==# rhs || substitute(rhs, '^suda://', '', '') ==# lhs
       setlocal nomodified
     endif
     redraw | echo echo_message
   finally
-    call s:doautocmd('BufWritePost')
+    doautocmd <nomodeline> BufWritePost
   endtry
 endfunction
 
 function! suda#FileWriteCmd() abort
-  call s:doautocmd('FileWritePre')
+  doautocmd <nomodeline> FileWritePre
   try
     redraw | echo suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
   finally
-    call s:doautocmd('FileWritePost')
+    doautocmd <nomodeline> FileWritePost
   endtry
 endfunction
 
@@ -239,10 +214,8 @@ function! suda#BufEnter() abort
     endwhile
   endif
   let bufnr = str2nr(expand('<abuf>'))
-  let prefix = get(s:totable(g:suda#prefix), 0, 'suda://')
   execute printf(
-        \ 'keepalt keepjumps edit %s%s',
-        \ prefix,
+        \ 'keepalt keepjumps edit suda://%s',
         \ fnamemodify(bufname, ':p'),
         \)
   execute printf('silent! %dbwipeout', bufnr)
@@ -252,33 +225,18 @@ function! s:escape_patterns(expr) abort
   return escape(a:expr, '^$~.*[]\')
 endfunction
 
-function! s:expand_expression(expr) abort
-  return fnamemodify(
-        \ substitute(expand(a:expr), s:prefix_searchpattern(), '', ''),
-        \ ':p'
-        \)
+function! s:strip_prefix(expr) abort
+  return substitute(a:expr, '^suda://', '', '')
 endfunction
 
-function! s:prefix_searchpattern() abort
-  return printf(
-        \ '^\%%(%s\)',
-        \ join(map(s:totable(g:suda#prefix), { -> s:escape_patterns(v:val) }), '\|')
-        \)
-endfunction
-
-function! s:totable(expr) abort
-  return type(a:expr) == v:t_list ? a:expr : [a:expr]
-endfunction
-
-function! s:doautocmd(name) abort
-  execute printf(
-        \ 'doautocmd %s %s',
-        \ a:name,
-        \ fnameescape(expand('<afile>'))
-        \)
-endfunction
-
+" Pseudo autocmd to suppress 'No such autocmd' message
+augroup suda_internal
+  autocmd!
+  autocmd BufReadPre,BufReadPost     suda://* :
+  autocmd FileReadPre,FileReadPost   suda://* :
+  autocmd BufWritePre,BufWritePost   suda://* :
+  autocmd FileWritePre,FileWritePost suda://* :
+augroup END
 
 " Configure
-let g:suda#prefix = get(g:, 'suda#prefix', 'suda://')
 let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
