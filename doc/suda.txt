@@ -1,6 +1,5 @@
 *suda.txt*			Use sudo to read/write files in Vim/Neovim
 
-Version: 0.1.0
 Author:  Alisue <lambdalisue@hashnote.net>
 License: MIT license
 
@@ -9,10 +8,12 @@ CONTENTS					*suda-contents*
 
 Introduction			|suda-introduction|
 Usage				|suda-usage|
+  Smart-edit			|suda-usage-smart-edit|
+  Windows			|suda-usage-windows|
 Interface			|suda-interface|
-  Functions			|suda-functions|
-  Variables			|suda-variables|
-Questions			||suda-questions|
+  Command			|suda-interface-command|
+  Function			|suda-interface-function|
+  Variable			|suda-interface-variable|
 
 
 =============================================================================
@@ -40,10 +41,23 @@ Make sure that the following shows 1.
 =============================================================================
 USAGE						*suda-usage*
 
-Add "suda://" prefix (see |g:suda#prefix|) to the filename and use Vim's
-builtin |read|, |edit|, |write|, |saveas| commands.
+Use |:SudaRead| to open unreadable files like:
+>
+	" Re-open a current file with sudo
+	:SudaRead
 
-For example:
+	" Open /etc/sudoers with sudo
+	:SudaRead /etc/sudoers
+<
+Or use |:SudaWrite| to write unwritable files like:
+>
+	" Forcedly save a current file with sudo
+	:SudaWrite
+
+	" Write contents to /etc/profile with sudo
+	:SudaWrite /etc/profile
+<
+Or directly use "suda://" prefix on |read|, |edit|, |write|, or |saveas| like:
 >
 	" Open a current file with sudo
 	:e suda://%
@@ -66,22 +80,57 @@ For example:
 	" Save contents to /etc/profile
 	:saveas suda:///etc/profile
 <
-You can change the protocol prefix with |g:suda#prefix|.
+You can change the prompt string by |g:suda#prompt| like:
+>
+	" 'Password' in french
+	let g:suda#prompt = 'Mot de passe: '
+<
+-----------------------------------------------------------------------------
+SMART-EDIT					*suda-usage-smart-edit*
 
+When |g:suda_smart_edit| is true, suda automatically switch a buffer name when
+the target file is not readable or writable.
+
+In short,
+>
+	$ vim /etc/hosts
+<
+or
+>
+	:e /etc/shadow
+<
+Will open "suda:///etc/hosts" or "suda:///etc/shadow" instead of "/etc/hosts"
+or "/etc/shadow" because that files are not writable or not readable.
+
+-----------------------------------------------------------------------------
+WINDOWS						*suda-usage-windows*
+
+Install https://github.com/mattn/sudo to enable this plugin in Windows.
+Make sure that the following shows 1.
+>
+	: echo executable('sudo')
+<
 
 =============================================================================
 INTERFACE					*suda-interface*
 
 -----------------------------------------------------------------------------
-FUNCTIONS					*suda-functions*
+COMMAND						*suda-interface-command*
 
-						*suda#init()*
-suda#init([{pat}])
-	Initialize suda. It registers required autocmds so that user can use
-	|read|, |edit|, |write|, and |saveas| commands.
-	The {pat} is used for |autocmd|.
+						*:SudaRead*
+:SudaRead [{path}]
+	Edit the {path} or re-open the current buffer with sudo.
+	It is equivalent to ":e suda://{path}"
 
+						*:SudaWrite*
+:SudaWrite [{path}]
+	Save content of the current buffer or save it to the {path} with sudo.
+	It is equivalent to ":w suda://{path}"
 
+-----------------------------------------------------------------------------
+FUNCTION					*suda-interface-function*
+
+						*suda#system()*
 suda#system({cmd} [, {input}])
 	Like |system()| but execute {cmd} with "sudo".
 
@@ -109,55 +158,20 @@ suda#write({expr} [, {options}])
 	buffer internally.
 
 -----------------------------------------------------------------------------
-VARIABLES					*suda-variables*
+VARIABLE					*suda-interface-variable*
 
-						*g:suda_startup*
-g:suda_startup
-	If set, call |suda#init()| automatically on suda's buffers, according
-	to the prefix.
-	Default: 1
-
-						*g:suda#prefix*
-g:suda#prefix
-	Prefix string(s) used as protocol. Can be a string or a list.
-	Default: "suda://"
-
-						*g:suda#prompt*
-g:suda#prompt
+*g:suda#prompt*
 	A prompt string used to ask password.
 	Default: "Password: "
 
-						*g:suda_smart_edit*
-g:suda_smart_edit
+*g:suda_smart_edit*
 	If set, an |autocmd| is created that performs a heuristic check on
-	every buffer and decides whether to replace it with a suda buffer i.e
-	`suda://%` - depending on your |g:suda#prefix|, naturally. The check
-	is done only once for every buffer and it is designed to be optimized
-	as possible so you shouldn't feel any slowdown when openning buffers.
+	every buffer and decides whether to replace it with a suda buffer.
+	The check is done only once for every buffer and it is designed to be
+	optimized as possible so you shouldn't feel any slowdown when openning
+	buffers.
 	Default: 0
 
-=============================================================================
-QUESTIONS					*suda-questions*
 
-Q. How to use "sudo:" instead of "suda://" like "sudo.vim"?
-A. Use |g:suda#prefix|| like below.
->
-	let g:suda#prefix = 'sudo:'
-<
-Q. How to use "sudo:" alongside "suda://"?
-A. Use a list in |g:suda#prefix|| like below.
->
-	let g:suda#prefix = ['suda://', 'sudo:']
-<
-Q. How to use SudoRead/SudoWrite command like "sudo.vim"?
-A. Write the following scripts in your |vimrc|.
->
-	command! -nargs=1 SudoRead  edit  suda://<args>
-	command! -nargs=1 SudoWrite write suda://<args>
-
-	" Or with 'sudo:'
-	command! -nargs=1 SudoRead  edit  sudo:<args>
-	command! -nargs=1 SudoWrite write sudo:<args>
-<
 =============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
