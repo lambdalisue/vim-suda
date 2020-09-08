@@ -16,40 +16,27 @@ This plugin is strongly inspired by [sudo.vim][] but the interfaces was aggressi
 
 ## Usage
 
-Use `suda://` prefix in `read`, `edit`, `write`, or `saveas` commands.
+Use `SudaRead` to open unreadable files like:
 
-```vim
-" Open a current file with sudo
-:e suda://%
+```
+" Re-open a current file with sudo
+:SudaRead
 
-" Save a current file with sudo
-:w suda://%
+" Open /etc/sudoers with sudo
+:SudaRead /etc/sudoers
+```
 
-" Edit /etc/sudoers
-:e suda:///etc/sudoers
+Or `SudaWrite` to write unwritable files like:
 
-" Read /etc/sudoers (insert content under the cursor)
-:r suda:///etc/sudoers
-
-" Read /etc/sudoers at the end
-:$r suda:///etc/sudoers
+```
+" Forcedly save a current file with sudo
+:SudaWrite
 
 " Write contents to /etc/profile
-:w suda:///etc/profile
-
-" Save contents to /etc/profile
-:saveas suda:///etc/profile
+:SudaWrite /etc/profile
 ```
 
-You can change the protocol prefix with `g:suda#prefix`.
-
-```vim
-let g:suda#prefix = 'suda://'
-" multiple protocols can be defined too
-let g:suda#prefix = ['suda://', 'sudo://', '_://']
-```
-
-And you can change the prompt string with `g:suda#prompt`.
+You can change the prompt string with `g:suda#prompt`.
 
 ```vim
 " 'Password' in french
