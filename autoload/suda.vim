@@ -89,19 +89,26 @@ function! suda#write(expr, ...) abort range
           \ options.cmdarg,
           \ tempfile,
           \))
-    let tee_cmd = 'tee'
     if has('win32')
       " In MS Windows, tee.exe has been placed at $VIMRUNTIME and $VIMRUNTIME
       " is added to $PATH in Vim process so `executable('tee')` returns 1.
       " However, sudo.exe executes a command in a new environment.  The
       " directory $VIMRUNTIME is not added here, so `tee` is not found.
       " Using a full path for tee command to avoid this problem.
-      let tee_cmd = exepath(tee_cmd)
+      let tee_cmd = exepath('tee')
+      let result = suda#system(
+            \ printf('%s %s', shellescape(tee_cmd), shellescape(path)),
+            \ join(readfile(tempfile, 'b'), "\n")
+            \)
+    else
+      " `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
+      " Both `bs=1M` and `bs=1m` are non-POSIX
+      let result = suda#system(printf(
+            \ 'dd if=%s of=%s bs=1048576',
+            \ shellescape(tempfile),
+            \ shellescape(path)
+            \))
     endif
-    let result = suda#system(
-          \ printf('%s %s', shellescape(tee_cmd), shellescape(path)),
-          \ join(readfile(tempfile, 'b'), "\n")
-          \)
     if v:shell_error
       throw result
     endif
