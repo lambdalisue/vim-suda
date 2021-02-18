@@ -1,9 +1,20 @@
 function! suda#system(cmd, ...) abort
-  let cmd = has('win32')
-        \ ? printf('sudo %s', a:cmd)
+  if has('win32')
+    let cmd = printf('sudo %s', a:cmd)
+    if &verbose
+      echomsg '[suda]' cmd
+    endif
+    let result = a:0 ? system(cmd, a:1) : system(cmd)
+    return result
+  endif
+  let cmd = g:suda#try_no_text_input_auth
+        \ ? printf('sudo -p '''' -S %s', a:cmd)
         \ : printf('sudo -p '''' -n %s', a:cmd)
   if &verbose
     echomsg '[suda]' cmd
+  endif
+  if g:suda#try_no_text_input_auth
+    redraw | echo g:suda#try_no_text_input_auth_prompt
   endif
   let result = a:0 ? system(cmd, a:1) : system(cmd)
   if v:shell_error == 0
@@ -263,3 +274,12 @@ augroup END
 
 " Configure
 let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
+
+if !has('win32')
+  let g:suda#try_no_text_input_auth = get(g:, 'suda#try_no_text_input_auth')
+  let g:suda#try_no_text_input_auth_prompt = get(
+        \ g:,
+        \ 'suda#try_no_text_input_auth_prompt',
+        \ 'Try authentication methods that require no text input.',
+        \)
+endif
