@@ -2,7 +2,7 @@ function! suda#system(cmd, ...) abort
   if has('win32')
     let cmd = printf('sudo %s', a:cmd)
     if &verbose
-      echomsg '[suda]' cmd
+      unsilent echomsg '[suda]' cmd
     endif
     let result = a:0 ? system(cmd, a:1) : system(cmd)
     return result
@@ -11,10 +11,10 @@ function! suda#system(cmd, ...) abort
         \ ? printf('sudo -p '''' -S %s', a:cmd)
         \ : printf('sudo -p '''' -n %s', a:cmd)
   if &verbose
-    echomsg '[suda]' cmd
+    unsilent echomsg '[suda]' cmd
   endif
   if g:suda#try_no_text_input_auth
-    redraw | echo g:suda#try_no_text_input_auth_prompt
+    redraw | unsilent echo g:suda#try_no_text_input_auth_prompt
   endif
   let result = a:0 ? system(cmd, a:1) : system(cmd)
   if v:shell_error == 0
@@ -152,7 +152,7 @@ function! suda#BufReadCmd() abort
     setlocal nobackup noswapfile noundofile
     setlocal nomodified
     filetype detect
-    redraw | echo echo_message
+    redraw | unsilent echo echo_message
   catch
     call s:echomsg_exception()
   finally
@@ -169,7 +169,7 @@ function! suda#FileReadCmd() abort
     " However, the mark becomes 1 even user execute ':0read'.
     " So check the last command to find if the {range} was 0 or not.
     let range = histget('cmd', -1) =~# '^0r\%[ead]\>' ? '0' : '''['
-    redraw | echo suda#read('<afile>', {
+    redraw | unsilent echo suda#read('<afile>', {
           \ 'range': range,
           \})
   catch
@@ -190,7 +190,7 @@ function! suda#BufWriteCmd() abort
     if lhs ==# rhs || substitute(rhs, '^suda://', '', '') ==# lhs
       setlocal nomodified
     endif
-    redraw | echo echo_message
+    redraw | unsilent echo echo_message
   catch
     call s:echomsg_exception()
   finally
@@ -201,7 +201,7 @@ endfunction
 function! suda#FileWriteCmd() abort
   doautocmd <nomodeline> FileWritePre
   try
-    redraw | echo suda#write('<afile>', {
+    redraw | unsilent echo suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
   catch
@@ -259,7 +259,7 @@ function! s:echomsg_exception() abort
   redraw
   echohl ErrorMsg
   for line in split(v:exception, '\n')
-    echomsg printf('[suda] %s', line)
+    unsilent echomsg printf('[suda] %s', line)
   endfor
 endfunction
 
