@@ -50,14 +50,26 @@ function! suda#read(expr, ...) abort range
 
   let tempfile = tempname()
   try
-    let redirect = &shellredir =~# '%s'
-          \ ? printf(&shellredir, shellescape(tempfile))
-          \ : &shellredir . shellescape(tempfile)
-    let result = suda#system(printf(
-          \ 'cat %s %s',
-          \ shellescape(fnamemodify(path, ':p')),
-          \ redirect,
-          \))
+    if has('win32')
+      let redirect = &shellredir =~# '%s'
+            \ ? printf(&shellredir, shellescape(tempfile))
+            \ : &shellredir . shellescape(tempfile)
+      let result = suda#system(printf(
+            \ 'cat %s %s',
+            \ shellescape(fnamemodify(path, ':p')),
+            \ redirect,
+            \))
+    else
+      " Create the file first so it will not be owned by root
+      call writefile([], tempfile, 'b')
+      " `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
+      " Both `bs=1M` and `bs=1m` are non-POSIX
+      let result = suda#system(printf(
+            \ 'dd if=%s of=%s bs=1048576',
+            \ shellescape(path),
+            \ shellescape(tempfile),
+            \))
+    endif
     if v:shell_error
       throw result
     else
@@ -109,7 +121,7 @@ function! suda#write(expr, ...) abort range
       let tee_cmd = exepath('tee')
       let result = suda#system(
             \ printf('%s %s', shellescape(tee_cmd), shellescape(path)),
-            \ join(readfile(tempfile, 'b'), "\n")
+            \ join(readfile(tempfile, 'b'), "\n"),
             \)
     else
       " `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
@@ -117,7 +129,7 @@ function! suda#write(expr, ...) abort range
       let result = suda#system(printf(
             \ 'dd if=%s of=%s bs=1048576',
             \ shellescape(tempfile),
-            \ shellescape(path)
+            \ shellescape(path),
             \))
     endif
     if v:shell_error
