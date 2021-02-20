@@ -264,7 +264,7 @@ function! s:escape_patterns(expr) abort
 endfunction
 
 function! s:strip_prefix(expr) abort
-  return substitute(a:expr, '^suda://', '', '')
+  return substitute(a:expr, '\v^(suda://)+', '', '')
 endfunction
 
 function! s:echomsg_exception() abort
