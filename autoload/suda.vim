@@ -142,6 +142,8 @@ function! suda#BufReadCmd() abort
     setlocal nomodified
     filetype detect
     redraw | echo echo_message
+  catch
+    call s:echomsg_exception()
   finally
     let &undolevels = ul
     doautocmd <nomodeline> BufReadPost
@@ -159,6 +161,8 @@ function! suda#FileReadCmd() abort
     redraw | echo suda#read('<afile>', {
           \ 'range': range,
           \})
+  catch
+    call s:echomsg_exception()
   finally
     doautocmd <nomodeline> FileReadPost
   endtry
@@ -176,6 +180,8 @@ function! suda#BufWriteCmd() abort
       setlocal nomodified
     endif
     redraw | echo echo_message
+  catch
+    call s:echomsg_exception()
   finally
     doautocmd <nomodeline> BufWritePost
   endtry
@@ -187,6 +193,8 @@ function! suda#FileWriteCmd() abort
     redraw | echo suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
+  catch
+    call s:echomsg_exception()
   finally
     doautocmd <nomodeline> FileWritePost
   endtry
@@ -234,6 +242,14 @@ endfunction
 
 function! s:strip_prefix(expr) abort
   return substitute(a:expr, '^suda://', '', '')
+endfunction
+
+function! s:echomsg_exception() abort
+  redraw
+  echohl ErrorMsg
+  for line in split(v:exception, '\n')
+    echomsg printf('[suda] %s', line)
+  endfor
 endfunction
 
 " Pseudo autocmd to suppress 'No such autocmd' message
