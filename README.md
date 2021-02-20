@@ -43,6 +43,8 @@ You can change the prompt string with `g:suda#prompt`.
 let g:suda#prompt = 'Mot de passe: '
 ```
 
+If you have configured `sudo` to use authentication methods that require no text input (like fingerprint or YubiKey) before password authentication, add `let g:suda#try_no_text_input_auth = 1` to you vim configuration. You can also change the extra prompt message in this case with `g:suda#try_no_text_input_auth_prompt`. These two options are not available for MS Windows.
+
 ### Smart edit
 
 When `let g:suda_smart_edit = 1` is written in your vimrc, suda automatically switch a buffer name when the target file is not readable or writable.

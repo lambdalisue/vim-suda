@@ -164,11 +164,21 @@ VARIABLE					*suda-interface-variable*
 	A prompt string used to ask password.
 	Default: "Password: "
 
+*g:suda#try_no_text_input_auth*
+	Try authentication methods that require no text input before prompting
+	for a password. Not available for MS Windows.
+	Default: 0
+
+*g:suda#try_no_text_input_auth_prompt*
+	A prompt string shown when trying authentication methods that require
+	no text input.
+	Default: "Try authentication methods that require no text input."
+
 *g:suda_smart_edit*
 	If set, an |autocmd| is created that performs a heuristic check on
 	every buffer and decides whether to replace it with a suda buffer.
 	The check is done only once for every buffer and it is designed to be
-	optimized as possible so you shouldn't feel any slowdown when openning
+	optimized as possible so you shouldn't feel any slowdown when opening
 	buffers.
 	Default: 0
 
