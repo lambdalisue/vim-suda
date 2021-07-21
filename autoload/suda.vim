@@ -250,6 +250,7 @@ function! s:echomsg_exception() abort
   for line in split(v:exception, '\n')
     echomsg printf('[suda] %s', line)
   endfor
+  echohl None
 endfunction
 
 " Pseudo autocmd to suppress 'No such autocmd' message
