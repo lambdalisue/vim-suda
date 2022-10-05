@@ -72,4 +72,4 @@ Make sure that the following shows `1`.
 
 ### Use sudo without a password
 
-When `let g:suda_nopass = 1` is written in your vimrc, suda won't ask you for a password. Use at your own risk.
+When `let g:suda#nopass = 1` is written in your vimrc, suda won't ask you for a password. Use at your own risk.

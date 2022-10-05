@@ -110,6 +110,14 @@ Make sure that the following shows 1.
 >
 	: echo executable('sudo')
 <
+-----------------------------------------------------------------------------
+NOPASS						*suda-usage-nopass*
+
+
+When `let g:suda#nopass = 1` is written in your vimrc, suda won't ask you for a password.
+Use at your own risk.
+
+
 
 =============================================================================
 INTERFACE					*suda-interface*

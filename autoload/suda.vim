@@ -1,5 +1,5 @@
 function! suda#system(cmd, ...) abort
-  let cmd = has('win32') || get(g:, 'suda_nopass')
+  let cmd = has('win32') || get(g:, 'suda#nopass')
         \ ? printf('sudo %s', a:cmd)
         \ : printf('sudo -p '''' -n %s', a:cmd)
   if &verbose
