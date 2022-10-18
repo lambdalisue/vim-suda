@@ -179,6 +179,11 @@ VARIABLE					*suda-interface-variable*
 	optimized as possible so you shouldn't feel any slowdown when openning
 	buffers.
 	Default: 0
+g:suda#nopass
+        If set, suda will not prompt you for a password before saving a file.
+        It is suppossed to support a setup with passwordless sudo or doas.
+        Use with care.
+        Default: 0
 
 
 =============================================================================
