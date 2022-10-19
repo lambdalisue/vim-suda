@@ -110,14 +110,6 @@ Make sure that the following shows 1.
 >
 	: echo executable('sudo')
 <
------------------------------------------------------------------------------
-NOPASS						*suda-usage-nopass*
-
-
-When `let g:suda#nopass = 1` is written in your vimrc, suda won't ask you for a password.
-Use at your own risk.
-
-
 
 =============================================================================
 INTERFACE					*suda-interface*
@@ -168,6 +160,12 @@ suda#write({expr} [, {options}])
 -----------------------------------------------------------------------------
 VARIABLE					*suda-interface-variable*
 
+*g:suda#nopass*
+	If set, suda will not prompt you for a password before saving a file.
+	It is suppossed to support a setup with passwordless sudo or doas.
+	Use with care.
+	Default: 0
+
 *g:suda#prompt*
 	A prompt string used to ask password.
 	Default: "Password: "
@@ -179,11 +177,6 @@ VARIABLE					*suda-interface-variable*
 	optimized as possible so you shouldn't feel any slowdown when openning
 	buffers.
 	Default: 0
-g:suda#nopass
-        If set, suda will not prompt you for a password before saving a file.
-        It is suppossed to support a setup with passwordless sudo or doas.
-        Use with care.
-        Default: 0
 
 
 =============================================================================
