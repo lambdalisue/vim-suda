@@ -160,6 +160,12 @@ suda#write({expr} [, {options}])
 -----------------------------------------------------------------------------
 VARIABLE					*suda-interface-variable*
 
+*g:suda#nopass*
+	If set, suda will not prompt you for a password before saving a file.
+	It is suppossed to support a setup with passwordless sudo or doas.
+	Use with care.
+	Default: 0
+
 *g:suda#prompt*
 	A prompt string used to ask password.
 	Default: "Password: "

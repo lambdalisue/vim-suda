@@ -1,5 +1,5 @@
 function! suda#system(cmd, ...) abort
-  let cmd = has('win32')
+  let cmd = has('win32') || g:suda#nopass
         \ ? printf('sudo %s', a:cmd)
         \ : printf('sudo -p '''' -n %s', a:cmd)
   if &verbose
@@ -263,4 +263,5 @@ augroup suda_internal
 augroup END
 
 " Configure
+let g:suda#nopass = get(g:, 'suda#nopass', 0)
 let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
