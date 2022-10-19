@@ -263,5 +263,5 @@ augroup suda_internal
 augroup END
 
 " Configure
-let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
 let g:suda#nopass = get(g:, 'suda#nopass', 0)
+let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
