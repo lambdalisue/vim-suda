@@ -174,7 +174,7 @@ function! suda#BufWriteCmd() abort
     let echo_message = suda#write('<afile>', {
           \ 'range': '''[,'']',
           \})
-    let lhs = expand('%')
+    let lhs = expand('%:p')
     let rhs = expand('<afile>')
     if lhs ==# rhs || substitute(rhs, '^suda://', '', '') ==# lhs
       setlocal nomodified
