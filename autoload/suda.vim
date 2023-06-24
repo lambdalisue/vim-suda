@@ -1,7 +1,7 @@
 function! suda#system(cmd, ...) abort
   let cmd = has('win32') || g:suda#nopass
-        \ ? printf('sudo %s', a:cmd)
-        \ : printf('sudo -p '''' -n %s', a:cmd)
+        \ ? printf('%s %s', g:suda#executable, a:cmd)
+        \ : printf('%s -p '''' -n %s', g:suda#executable, a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
@@ -15,7 +15,7 @@ function! suda#system(cmd, ...) abort
   finally
     call inputrestore()
   endtry
-  let cmd = printf('sudo -p '''' -S %s', a:cmd)
+  let cmd = printf('%s -p '''' -S %s', g:suda#executable, a:cmd)
   return system(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
 
@@ -265,3 +265,4 @@ augroup END
 " Configure
 let g:suda#nopass = get(g:, 'suda#nopass', 0)
 let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
+let g:suda#executable = get(g:, 'suda#executable', 'sudo')
