@@ -160,6 +160,10 @@ suda#write({expr} [, {options}])
 -----------------------------------------------------------------------------
 VARIABLE					*suda-interface-variable*
 
+*g:suda#executable*
+	A executable of "sudo" command.
+	Default: "sudo"
+
 *g:suda#nopass*
 	If set, suda will not prompt you for a password before saving a file.
 	It is suppossed to support a setup with passwordless sudo or doas.
