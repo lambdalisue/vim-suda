@@ -126,6 +126,8 @@ function! suda#write(expr, ...) abort range
   finally
     silent call delete(tempfile)
   endtry
+  " Warn that this file has changed
+  checktime
 endfunction
 
 function! suda#BufReadCmd() abort
