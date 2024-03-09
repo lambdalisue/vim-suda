@@ -9,13 +9,24 @@ function! suda#system(cmd, ...) abort
   if v:shell_error == 0
     return result
   endif
-  try
-    call inputsave()
-    redraw | let password = inputsecret(g:suda#prompt)
-  finally
-    call inputrestore()
-  endtry
-  let cmd = printf('%s -p '''' -S %s', g:suda#executable, a:cmd)
+  " Let's try running a command non-interactively. If it works, we have a sudo
+  " timestamp that has not timed out yet. In this case there is no need to ask
+  " for a password.
+  " This only works if the timestamp_type is set to 'global' in the sudo
+  " configuation file. It does not work with 'ppid', 'kernel' or 'tty'.
+  let cmd = printf('%s -n true', g:suda#executable)
+  let result = system(cmd)
+  if v:shell_error == 0
+    let cmd = printf('%s %s', g:suda#executable, a:cmd)
+  else
+    try
+      call inputsave()
+      redraw | let password = inputsecret(g:suda#prompt)
+    finally
+      call inputrestore()
+    endtry
+    let cmd = printf('%s -p '''' -S %s', g:suda#executable, a:cmd)
+  endif
   return system(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
 
