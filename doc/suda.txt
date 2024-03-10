@@ -37,6 +37,17 @@ Make sure that the following shows 1.
 >
 	: echo executable('sudo')
 <
+*suda* will ask for a password each time sudo is used for reading or writing.
+However, you can set global timestamps in your sudoers configuration, if you
+have sudo version 1.8.21 or higher. This will enable *suda* to reuse an
+existing sudo authentication token. In this case, it will not ask for a
+password if not needed. To enable, configure sudo with this option:
+>
+        Defaults timestamp_type = global
+<
+The other types 'ppid', 'kernel' or 'tty' will not allow *suda* to use sudo
+credential caching. Please make sure this is in line with your security
+requirements.
 
 =============================================================================
 USAGE						*suda-usage*
