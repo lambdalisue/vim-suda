@@ -1,7 +1,18 @@
+function! s:get_command(opts, cmd)
+    " TODO: should we pass '--' between a:opts and a:cmd?
+    " TODO: should we change this api to use lists? system() allows either
+    " strings or lists. We don't need a intermediate shell for anything though.
+    " TODO: Should we move shell escaping to the responsibility of
+    " suda#system/s:get_command to avoid forgetting it at the call site?
+    return g:suda#executable ==# "sudo" && len(a:opts) > 0
+          \ ? printf('%s %s %s', g:suda#executable, a:opts, a:cmd)
+          \ : printf('%s %s', g:suda#executable, a:cmd)
+endfunction
+
 function! suda#system(cmd, ...) abort
   let cmd = has('win32') || g:suda#nopass
-        \ ? printf('%s %s', g:suda#executable, a:cmd)
-        \ : printf('%s -p '''' -n %s', g:suda#executable, a:cmd)
+        \ ? s:get_command('', a:cmd)
+        \ : s:get_command('-p '''' -n', a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
@@ -9,23 +20,29 @@ function! suda#system(cmd, ...) abort
   if v:shell_error == 0
     return result
   endif
+  let ask_pass = 1
   " Let's try running a command non-interactively. If it works, we have a sudo
   " timestamp that has not timed out yet. In this case there is no need to ask
   " for a password.
   " This only works if the timestamp_type is set to 'global' in the sudo
   " configuation file. It does not work with 'ppid', 'kernel' or 'tty'.
-  let cmd = printf('%s -n true', g:suda#executable)
-  let result = system(cmd)
-  if v:shell_error == 0
-    let cmd = printf('%s %s', g:suda#executable, a:cmd)
-  else
+  " Note: for non-sudo commands, don't do this, instead *always* ask for the password
+  if g:suda#executable ==# "sudo"
+    let cmd = s:get_command("-n", "true")
+    let result = system(cmd)
+    if v:shell_error == 0
+      let cmd = s:get_command('', a:cmd)
+      let ask_pass = 0
+    endif
+  endif
+  if ask_pass == 1
     try
       call inputsave()
       redraw | let password = inputsecret(g:suda#prompt)
     finally
       call inputrestore()
     endtry
-    let cmd = printf('%s -p '''' -S %s', g:suda#executable, a:cmd)
+    let cmd = s:get_command('-p '''' -S', a:cmd)
   endif
   return system(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
