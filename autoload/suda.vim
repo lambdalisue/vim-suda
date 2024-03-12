@@ -1,13 +1,18 @@
-function! s:get_command(opts)
+function! s:get_command(opts, cmd)
+    " TODO: should we pass '--' between a:opts and a:cmd?
+    " TODO: should we change this api to use lists? system() allows either
+    " strings or lists. We don't need a intermediate shell for anything though.
+    " TODO: Should we move shell escaping to the responsibility of
+    " suda#system/s:get_command to avoid forgetting it at the call site?
     return g:suda#executable ==# "sudo" && len(a:opts) > 0
-          \ ? printf('%s %s', g:suda#executable, a:opts)
-          \ : g:suda#executable
+          \ ? printf('%s %s %s', g:suda#executable, a:opts, a:cmd)
+          \ : printf('%s %s', g:suda#executable, a:cmd)
 endfunction
 
 function! suda#system(cmd, ...) abort
   let cmd = has('win32') || g:suda#nopass
-        \ ? printf('%s %s', s:get_command(''), a:cmd)
-        \ : printf('%s %s', s:get_command('-p '''' -n'), a:cmd)
+        \ ? s:get_command('', a:cmd)
+        \ : s:get_command('-p '''' -n', a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
@@ -23,10 +28,10 @@ function! suda#system(cmd, ...) abort
   " configuation file. It does not work with 'ppid', 'kernel' or 'tty'.
   " Note: for non-sudo commands, don't do this, instead *always* ask for the password
   if g:suda#executable ==# "sudo"
-    let cmd = printf('%s -n true', g:suda#executable)
+    let cmd = s:get_command("-n", "true")
     let result = system(cmd)
     if v:shell_error == 0
-      let cmd = printf('%s %s', g:suda#executable, a:cmd)
+      let cmd = s:get_command('', a:cmd)
       let ask_pass = 0
     endif
   endif
@@ -37,7 +42,7 @@ function! suda#system(cmd, ...) abort
     finally
       call inputrestore()
     endtry
-    let cmd = printf('%s %s', s:get_command('-p '''' -S'), a:cmd)
+    let cmd = s:get_command('-p '''' -S', a:cmd)
   endif
   return system(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
