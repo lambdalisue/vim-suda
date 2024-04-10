@@ -175,7 +175,7 @@ VARIABLE					*suda-interface-variable*
 	A executable of "sudo" command.
 	Default: "sudo"
 
-*g:suda#nopass*
+*g:suda#noninteractive*
 	If set, suda will not prompt you for a password before saving a file.
 	It is suppossed to support a setup with passwordless sudo or doas.
 	Use with care.
