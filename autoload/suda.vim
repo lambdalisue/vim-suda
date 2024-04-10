@@ -261,7 +261,7 @@ function! suda#BufEnter() abort
   let bufnr = str2nr(expand('<abuf>'))
   execute printf(
         \ 'keepalt keepjumps edit suda://%s',
-        \ fnamemodify(bufname, ':p'),
+        \ fnameescape(fnamemodify(bufname, ':p')),
         \)
   execute printf('silent! %dbwipeout', bufnr)
 endfunction

@@ -20,12 +20,12 @@ augroup END
 
 function! s:read(args) abort
   let args = empty(a:args) ? expand('%:p') : a:args
-  execute printf('edit suda://%s', args)
+  execute printf('edit suda://%s', fnameescape(args))
 endfunction
 command! -nargs=? -complete=file SudaRead  call s:read(<q-args>)
 
 function! s:write(args) abort
   let args = empty(a:args) ? expand('%:p') : a:args
-  execute printf('write suda://%s', args)
+  execute printf('write suda://%s', fnameescape(args))
 endfunction
 command! -nargs=? -complete=file SudaWrite call s:write(<q-args>)
