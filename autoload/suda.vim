@@ -15,17 +15,16 @@ function! s:get_command(opts, cmd)
 endfunction
 
 " {cmd} is a argv list for the process
-" {list} is a boolean - if true, calls systemlist(), else system()
 " {input} (a:1) is a string to pass as stdin to the command
-function! suda#system(cmd, list, ...) abort
-  let System = a:list ? function('systemlist') : function('system') 
+" Returns a list of the command's output, split by NLs, with NULs replaced with NLs.
+function! suda#systemlist(cmd, ...) abort
   let cmd = has('win32') || g:suda#nopass
         \ ? s:get_command([], a:cmd)
         \ : s:get_command(['-p', '', '-n'], a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
-  let result = a:0 ? System(cmd, a:1) : System(cmd)
+  let result = a:0 ? systemlist(cmd, a:1) : systemlist(cmd)
   if v:shell_error == 0
     return result
   endif
@@ -38,7 +37,7 @@ function! suda#system(cmd, list, ...) abort
   " Note: for non-sudo commands, don't do this, instead *always* ask for the password
   if g:suda#executable ==# "sudo"
     let cmd = s:get_command(["-n"], ["true"])
-    let result = System(cmd)
+    let result = systemlist(cmd)
     if v:shell_error == 0
       let cmd = s:get_command([], a:cmd)
       let ask_pass = 0
@@ -53,8 +52,18 @@ function! suda#system(cmd, list, ...) abort
     endtry
     let cmd = s:get_command(['-p', '', '-S'], a:cmd)
   endif
-  return System(cmd, password . "\n" . (a:0 ? a:1 : ''))
+  return systemlist(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
+" {cmd} is a argv list for the process
+" {input} (a:1) is a string to pass as stdin to the command
+" Returns the command's output as a string with NULs replaced with SOH (\u0001)
+function! suda#system(cmd, ...) abort
+  let output = suda#systemlist(a:cmd, a:000)
+  " Emulate system()'s handling of output - replace NULs (represented by NL), join by NLs
+  return join( map(l:output, { k, v -> substitute(v:val, '\n', '', 'g') }), '\n')
+endfunction
+
+
 
 function! suda#read(expr, ...) abort range
   let path = s:strip_prefix(expand(a:expr))
@@ -79,7 +88,7 @@ function! suda#read(expr, ...) abort range
   try
     " NOTE: use systemlist to avoid changing newlines. Get the results of the
     " command (as a list) to avoid having to spawn a shell to do a redirection
-    let resultlist = suda#system(['cat', fnamemodify(path, ':p')], 1)
+    let resultlist = suda#systemlist(['cat', fnamemodify(path, ':p')])
     if v:shell_error
       throw resultlist
     else
@@ -135,12 +144,11 @@ function! suda#write(expr, ...) abort range
       let tee_cmd = exepath('tee')
       let result = suda#system(
             \ [tee_cmd, path],
-            \ join(readfile(tempfile, 'b'), "\n")
-            \ , 0)
+            \ join(readfile(tempfile, 'b'), "\n") )
     else
       " `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
       " Both `bs=1M` and `bs=1m` are non-POSIX
-      let result = suda#system(['dd', 'if='.tempfile, 'of='.path, 'bs=1048576'], 0)
+      let result = suda#system(['dd', 'if='.tempfile, 'of='.path, 'bs=1048576'])
     endif
     if v:shell_error
       throw result
