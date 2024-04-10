@@ -58,7 +58,7 @@ endfunction
 " {input} (a:1) is a string to pass as stdin to the command
 " Returns the command's output as a string with NULs replaced with SOH (\u0001)
 function! suda#system(cmd, ...) abort
-  let output = suda#systemlist(a:cmd, a:000)
+  let output = call("suda#systemlist", [a:cmd] + a:000)
   " Emulate system()'s handling of output - replace NULs (represented by NL), join by NLs
   return join( map(l:output, { k, v -> substitute(v:val, '\n', '', 'g') }), '\n')
 endfunction
