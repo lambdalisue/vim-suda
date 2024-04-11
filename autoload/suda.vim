@@ -61,7 +61,7 @@ function! suda#read(expr, ...) abort range
           \ '%sread %s %s',
           \ options.range,
           \ options.cmdarg,
-          \ path,
+          \ fnameescape(path),
           \)), '^\r\?\n', '', '')
   endif
 
@@ -82,7 +82,7 @@ function! suda#read(expr, ...) abort range
             \ '%sread %s %s',
             \ options.range,
             \ options.cmdarg,
-            \ tempfile,
+            \ fnameescape(tempfile),
             \))
       " Rewrite message with a correct file name
       let echo_message = substitute(
@@ -115,7 +115,7 @@ function! suda#write(expr, ...) abort range
           \ options.range,
           \ options.cmdbang ? '!' : '',
           \ options.cmdarg,
-          \ tempfile,
+          \ fnameescape(tempfile),
           \))
     if has('win32')
       " In MS Windows, tee.exe has been placed at $VIMRUNTIME and $VIMRUNTIME
