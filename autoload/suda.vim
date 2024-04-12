@@ -1,22 +1,30 @@
+" {opts} is a list of command line options
+" {cmd} is the argv list for the process to run
+" {opts} should be *sudo-specific*, while {cmd} is passed to any suda#executable
+" Note: {cmd} can not have any sudo flags. Put these into {opts}, as '--' is passed before {cmd}
+" Similarly, {opts} should *not* contain '--'
 function! s:get_command(opts, cmd)
-    " TODO: should we pass '--' between a:opts and a:cmd?
-    " TODO: should we change this api to use lists? system() allows either
-    " strings or lists. We don't need a intermediate shell for anything though.
-    " TODO: Should we move shell escaping to the responsibility of
-    " suda#system/s:get_command to avoid forgetting it at the call site?
-    return g:suda#executable ==# "sudo" && len(a:opts) > 0
-          \ ? printf('%s %s %s', g:suda#executable, a:opts, a:cmd)
-          \ : printf('%s %s', g:suda#executable, a:cmd)
+  if g:suda#executable ==# 'sudo' 
+    return [g:suda#executable] + a:opts + ['--'] + a:cmd
+  endif
+  " TODO:
+  " Should we pass '--' before cmd when using a custom suda#executable?
+  " Should suda#executable be split? Should we allow suda#executable to be a list instead?
+  " This behavior is entirely undocumented
+  return [g:suda#executable] + a:cmd
 endfunction
 
-function! suda#system(cmd, ...) abort
+" {cmd} is a argv list for the process
+" {input} (a:1) is a string to pass as stdin to the command
+" Returns a list of the command's output, split by NLs, with NULs replaced with NLs.
+function! suda#systemlist(cmd, ...) abort
   let cmd = has('win32') || g:suda#nopass
-        \ ? s:get_command('', a:cmd)
-        \ : s:get_command('-p '''' -n', a:cmd)
+        \ ? s:get_command([], a:cmd)
+        \ : s:get_command(['-p', '', '-n'], a:cmd)
   if &verbose
     echomsg '[suda]' cmd
   endif
-  let result = a:0 ? system(cmd, a:1) : system(cmd)
+  let result = a:0 ? systemlist(cmd, a:1) : systemlist(cmd)
   if v:shell_error == 0
     return result
   endif
@@ -28,24 +36,34 @@ function! suda#system(cmd, ...) abort
   " configuation file. It does not work with 'ppid', 'kernel' or 'tty'.
   " Note: for non-sudo commands, don't do this, instead *always* ask for the password
   if g:suda#executable ==# "sudo"
-    let cmd = s:get_command("-n", "true")
-    let result = system(cmd)
+    let cmd = s:get_command(["-n"], ["true"])
+    let result = systemlist(cmd)
     if v:shell_error == 0
-      let cmd = s:get_command('', a:cmd)
+      let cmd = s:get_command([], a:cmd)
       let ask_pass = 0
     endif
   endif
   if ask_pass == 1
     try
       call inputsave()
-      redraw | let password = inputsecret(g:suda#prompt)
+      redraw  | let password = inputsecret(g:suda#prompt)
     finally
       call inputrestore()
     endtry
-    let cmd = s:get_command('-p '''' -S', a:cmd)
+    let cmd = s:get_command(['-p', '', '-S'], a:cmd)
   endif
-  return system(cmd, password . "\n" . (a:0 ? a:1 : ''))
+  return systemlist(cmd, password . "\n" . (a:0 ? a:1 : ''))
 endfunction
+" {cmd} is a argv list for the process
+" {input} (a:1) is a string to pass as stdin to the command
+" Returns the command's output as a string with NULs replaced with SOH (\u0001)
+function! suda#system(cmd, ...) abort
+  let output = call("suda#systemlist", [a:cmd] + a:000)
+  " Emulate system()'s handling of output - replace NULs (represented by NL), join by NLs
+  return join( map(l:output, { k, v -> substitute(v:val, '\n', '', 'g') }), '\n')
+endfunction
+
+
 
 function! suda#read(expr, ...) abort range
   let path = s:strip_prefix(expand(a:expr))
@@ -57,6 +75,7 @@ function! suda#read(expr, ...) abort range
         \)
 
   if filereadable(path)
+    " TODO: (aarondill) can we use readfile() here?
     return substitute(execute(printf(
           \ '%sread %s %s',
           \ options.range,
@@ -67,17 +86,15 @@ function! suda#read(expr, ...) abort range
 
   let tempfile = tempname()
   try
-    let redirect = &shellredir =~# '%s'
-          \ ? printf(&shellredir, shellescape(tempfile))
-          \ : &shellredir . shellescape(tempfile)
-    let result = suda#system(printf(
-          \ 'cat %s %s',
-          \ shellescape(fnamemodify(path, ':p')),
-          \ redirect,
-          \))
+    " NOTE: use systemlist to avoid changing newlines. Get the results of the
+    " command (as a list) to avoid having to spawn a shell to do a redirection
+    let resultlist = suda#systemlist(['cat', fnamemodify(path, ':p')])
     if v:shell_error
-      throw result
+      throw resultlist
     else
+      " write with 'b' to ensure contents are the same
+      call writefile(resultlist, tempfile, 'b')
+    " TODO: (aarondill) can we use readfile() here?
       let echo_message = execute(printf(
             \ '%sread %s %s',
             \ options.range,
@@ -110,6 +127,7 @@ function! suda#write(expr, ...) abort range
   let tempfile = tempname()
   try
     let path_exists = !empty(getftype(path))
+    " TODO: (aarondill) can we use writefile() here?
     let echo_message = execute(printf(
           \ '%swrite%s %s %s',
           \ options.range,
@@ -125,17 +143,12 @@ function! suda#write(expr, ...) abort range
       " Using a full path for tee command to avoid this problem.
       let tee_cmd = exepath('tee')
       let result = suda#system(
-            \ printf('%s %s', shellescape(tee_cmd), shellescape(path)),
-            \ join(readfile(tempfile, 'b'), "\n")
-            \)
+            \ [tee_cmd, path],
+            \ join(readfile(tempfile, 'b'), "\n") )
     else
       " `bs=1048576` is equivalent to `bs=1M` for GNU dd or `bs=1m` for BSD dd
       " Both `bs=1M` and `bs=1m` are non-POSIX
-      let result = suda#system(printf(
-            \ 'dd if=%s of=%s bs=1048576',
-            \ shellescape(tempfile),
-            \ shellescape(path)
-            \))
+      let result = suda#system(['dd', 'if='.tempfile, 'of='.path, 'bs=1048576'])
     endif
     if v:shell_error
       throw result
