@@ -18,7 +18,7 @@ endfunction
 " {input} (a:1) is a string to pass as stdin to the command
 " Returns a list of the command's output, split by NLs, with NULs replaced with NLs.
 function! suda#systemlist(cmd, ...) abort
-  let cmd = has('win32') || g:suda#nointeractive
+  let cmd = has('win32') || g:suda#noninteractive
         \ ? s:get_command([], a:cmd)
         \ : s:get_command(['-p', '', '-n'], a:cmd)
   if &verbose
