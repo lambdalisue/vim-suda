@@ -18,7 +18,7 @@ endfunction
 " {input} (a:1) is a string to pass as stdin to the command
 " Returns a list of the command's output, split by NLs, with NULs replaced with NLs.
 function! suda#systemlist(cmd, ...) abort
-  let cmd = has('win32') || g:suda#nopass
+  let cmd = has('win32') || g:suda#noninteractive
         \ ? s:get_command([], a:cmd)
         \ : s:get_command(['-p', '', '-n'], a:cmd)
   if &verbose
@@ -306,6 +306,7 @@ augroup suda_internal
 augroup END
 
 " Configure
-let g:suda#nopass = get(g:, 'suda#nopass', 0)
+" Use suda#noninteractive if defined, else suda#nopass for backwards compatability, default to 0
+let g:suda#noninteractive = get(g:, 'suda#noninteractive', get(g:, 'suda#nopass', 0))
 let g:suda#prompt = get(g:, 'suda#prompt', 'Password: ')
 let g:suda#executable = get(g:, 'suda#executable', 'sudo')
