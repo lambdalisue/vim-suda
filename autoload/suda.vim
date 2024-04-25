@@ -6,17 +6,17 @@
 " Returns a string that is safe to pass to `system` on both vim and neovim
 function! s:get_command(opts, cmd)
   if g:suda#executable ==# 'sudo' 
-    let ret = [g:suda#executable] + a:opts + ['--'] + a:cmd
+    let ret = a:opts + ['--'] + a:cmd
   else
     " TODO:
     " Should we pass '--' before cmd when using a custom suda#executable?
     " Should suda#executable be split? Should we allow suda#executable to be a list instead?
     " This behavior is entirely undocumented
-    let ret =  [g:suda#executable] + a:cmd
+    let ret =  a:cmd
   endif
 
   " TODO: Should we detect `has('neovim')` and return a list to avoid a shell?
-  return join(map(ret, { k, v -> shellescape(v) }), ' ')
+  return join([g:suda#executable] + map(ret, { k, v -> shellescape(v) }), ' ')
 endfunction
 
 " {cmd} is a argv list for the process
