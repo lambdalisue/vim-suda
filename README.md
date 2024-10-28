@@ -14,6 +14,30 @@ This plugin is strongly inspired by [sudo.vim][] but the interfaces was aggressi
 [sudo.vim]: https://github.com/vim-scripts/sudo.vim
 [neovim]: https://github.com/neovim/neovim
 
+## Installation
+
+### folke/lazy.nvim
+
+Smart Edit is recommended. Lazy.nvim requires this variable to be defined like this due to its lazy loading:
+
+``` init.lua
+  {
+    "lambdalisue/vim-suda",
+    init = function()
+      vim.g.suda_smart_edit = 1
+    end
+  },
+```
+
+### junegunn/vim-plug
+
+``` init.vim
+Plug 'lambdalisue/vim-suda'
+
+" recommended
+let g:suda_smart_edit = 1
+```
+
 ## Usage
 
 Use `SudaRead` to open unreadable files like:
