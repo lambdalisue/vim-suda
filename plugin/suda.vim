@@ -3,7 +3,7 @@ if exists('g:loaded_suda')
 endif
 let g:loaded_suda = 1
 
-if get(g:, 'suda_smart_edit')
+if get(g:, 'suda_smart_edit') or get(g:, 'suda#smart_edit')
   augroup suda_smart_edit
     autocmd!
     autocmd BufEnter * nested call suda#BufEnter()
