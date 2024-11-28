@@ -45,7 +45,7 @@ let g:suda#prompt = 'Mot de passe: '
 
 ### Smart edit
 
-When `let g:suda_smart_edit = 1` is written in your vimrc, suda automatically switch a buffer name when the target file is not readable or writable.
+When `let g:suda#smart_edit = 1` is written in your vimrc, suda automatically switch a buffer name when the target file is not readable or writable.
 
 In short,
 
