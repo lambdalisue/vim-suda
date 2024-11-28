@@ -185,7 +185,7 @@ VARIABLE					*suda-interface-variable*
 	A prompt string used to ask password.
 	Default: "Password: "
 
-*g:suda_smart_edit*
+*g:suda#smart_edit*
 	If set, an |autocmd| is created that performs a heuristic check on
 	every buffer and decides whether to replace it with a suda buffer.
 	The check is done only once for every buffer and it is designed to be
