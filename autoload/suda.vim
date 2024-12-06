@@ -186,7 +186,7 @@ function! suda#BufReadCmd() abort
           \})
     silent 0delete _
     setlocal buftype=acwrite
-    setlocal nobackup noswapfile noundofile
+    setlocal noswapfile noundofile
     setlocal nomodified
     filetype detect
     redraw | echo echo_message
