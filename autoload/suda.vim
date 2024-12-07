@@ -99,7 +99,6 @@ function! suda#read(expr, ...) abort range
     else
       " write with 'b' to ensure contents are the same
       call writefile(resultlist, tempfile, 'b')
-    " TODO: (aarondill) can we use readfile() here?
       let echo_message = execute(printf(
             \ '%sread %s %s',
             \ options.range,
@@ -181,12 +180,12 @@ function! suda#BufReadCmd() abort
   let ul = &undolevels
   set undolevels=-1
   try
+    setlocal noswapfile noundofile
     let echo_message = suda#read('<afile>', {
           \ 'range': '1',
           \})
     silent 0delete _
     setlocal buftype=acwrite
-    setlocal noswapfile noundofile
     setlocal nomodified
     filetype detect
     redraw | echo echo_message
