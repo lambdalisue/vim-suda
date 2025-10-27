@@ -184,7 +184,7 @@ function! suda#BufReadCmd() abort
     let echo_message = suda#read('<afile>', {
           \ 'range': '1',
           \})
-    silent 0delete _
+    silent lockmarks 0delete _
     setlocal buftype=acwrite
     setlocal nomodified
     filetype detect
